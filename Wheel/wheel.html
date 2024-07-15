@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Spin The Wheel Challenge</title>
+    <link rel="stylesheet" type="text/css" href="wheel.css">
+</head>
+<body>
+    <div class="container-top">
+        
+        <h1 style="margin-bottom: 2rem;">Spin the Wheel: Weekly Challenge</h1>
+        <!-- <img style="size: 1rem;" src="/images/wheel.jpeg" alt="wheel">
+         -->
+        <h2 style="margin-bottom: 2rem; text-align: center;">Try your luck and win points!</h2>
+        <div class="container">
+            <div class="wheel">
+                <div class="number" style="--i:0; --clr:#db7093;"><span>1</span></div>
+                <div class="number" style="--i:1; --clr:#20b2aa;"><span>2</span></div>
+                <div class="number" style="--i:2; --clr:#d63e92;"><span>3</span></div>
+                <div class="number" style="--i:3; --clr:#daa520;"><span>4</span></div>
+                <div class="number" style="--i:4; --clr:#ff340f;"><span>5</span></div>
+                <div class="number" style="--i:5; --clr:#ff7f50;"><span>6</span></div>
+                <div class="number" style="--i:6; --clr:#3cb371;"><span>7</span></div>
+                <div class="number" style="--i:7; --clr:#4169e1;"><span>8</span></div>
+            </div>            
+            <div class="spinBtn">Spin</div>
+        </div>
+    </div>
+
+    <div class="container-bottom">
+        <div class="message-container">
+            <p class="rewardMessage" id="rewardMessage"></p>
+            <button id="addPointsBtn">Claim Points</button>
+        </div>
+    </div>
+
+    <script>
+        let wheel = document.querySelector('.wheel');
+        let spinBtn = document.querySelector('.spinBtn');
+        let rewardMessage = document.getElementById('rewardMessage');
+        let addPointsBtn = document.getElementById('addPointsBtn');
+        let value = 0;
+
+        spinBtn.onclick = function() {
+            let spinValue = Math.ceil(Math.random() * 3600);
+            value += spinValue;
+            wheel.style.transition = 'transform 4s ease-out';
+            wheel.style.transform = "rotate(" + value + "deg)";
+
+            setTimeout(function() {
+                // Determine the reward based on the angle
+                let actualDegree = value % 360;
+                let reward;
+                if (actualDegree >= 0 && actualDegree < 45) reward = 100;
+                else if (actualDegree >= 45 && actualDegree < 90) reward = 1;
+                else if (actualDegree >= 90 && actualDegree < 135) reward = 50;
+                else if (actualDegree >= 135 && actualDegree < 180) reward = 10;
+                else if (actualDegree >= 180 && actualDegree < 225) reward = 70;
+                else if (actualDegree >= 225 && actualDegree < 270) reward = 20;
+                else if (actualDegree >= 270 && actualDegree < 315) reward = 30;
+                else reward = 40;
+
+                // Display the reward message and claim button
+                rewardMessage.innerText = `You won ${reward} points!`;
+                rewardMessage.style.display = "block";
+                addPointsBtn.style.display = "block";
+
+                addPointsBtn.onclick = function() {
+                    // Add reward points to wallet
+                    addToWallet(reward);
+                };
+            }, 4000); // Match this time to the CSS transition duration
+        };
+
+        function addToWallet(points) {
+            // Simulate adding points to wallet (replace with actual logic)
+            fetch('http://localhost:3000/update_wallet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ points: points }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Points added to wallet:', data);
+                // Redirect to wallet.html with points information
+                window.location.href = `wallet.html?points=${points}`;
+            })
+            .catch((error) => {
+                console.error('Error adding points to wallet:', error);
+            });
+        }
+    </script>
+</body>
+</html>
